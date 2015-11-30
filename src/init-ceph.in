@@ -123,6 +123,9 @@ stop_daemon() {
 }
 
 ## command line options
+[ -e /etc/sysconfig/ceph ] && . /etc/sysconfig/ceph
+[ -e /etc/default/ceph ] && . /etc/default/ceph
+
 options=
 
 OPTS=$(getopt -n 'init-ceph' -o 'hvam:c:' -l 'help,verbose,valgrind,novalgrind,allhosts,restart,norestart,btrfs,nobtrfs,fsmount,nofsmount,btrfsumount,fsumount,conf:,cluster:,hostname:' -- "$@")
@@ -313,7 +316,7 @@ for name in $what; do
 	lockfile=""
     fi
 
-    get_conf asok "$run_dir/ceph-$type.$id.asok" "admin socket"
+    get_conf asok "$run_dir/$cluster-$type.$id.asok" "admin socket"
 
     case "$command" in
 	start)
@@ -430,8 +433,8 @@ for name in $what; do
 		# these keys.  it's also true for legacy installs
 		# via mkcephfs, which is fine too; there is no harm
 		# in creating these keys.
-		get_conf mon_data "/var/lib/ceph/mon/ceph-$id" "mon data"
-		if [ "$mon_data" = "/var/lib/ceph/mon/ceph-$id" -a "$asok" = "/var/run/ceph/ceph-mon.$id.asok" ]; then
+		get_conf mon_data "/var/lib/ceph/mon/$cluster-$id" "mon data"
+		if [ "$mon_data" = "/var/lib/ceph/mon/$cluster-$id" -a "$asok" = "/var/run/ceph/ceph-, , mon.$id.asok" ]; then
 		    echo Starting ceph-create-keys on $host...
 		    cmd2="$SBINDIR/ceph-create-keys --cluster $cluster -i $id 2> /dev/null &"
 		    do_cmd "$cmd2"
